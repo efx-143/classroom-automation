@@ -457,10 +457,39 @@
             showToast('Lecture update logic (DB) pending!', 'info');
             closeAllModals();
         };
-        const handleSaveContent = (id) => {
-            showToast('Save content logic (DB) pending!', 'info');
+        // --- MODIFIED: handleSaveContent ---
+const handleSaveContent = async (id) => {
+    // Abhi sirf link wala part handle kar rahe hain
+    const contentLinkInput = document.getElementById('content-link-input');
+    const contentLink = contentLinkInput ? contentLinkInput.value : ''; // Input se link get karo
+
+    // TODO: File upload logic yahan add karna hoga
+
+    if (!contentLink) {
+         showToast('Please provide a content link.', 'error');
+         return;
+    }
+
+    try {
+        const response = await fetch(`${API_URL}/save-content/${id}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ content_link: contentLink })
+        });
+
+        if (response.ok) {
+            showToast('Content saved successfully!', 'success');
+            // Database update hua hai, toh schedule ko refresh karo
+            await loadSchedule();
             closeAllModals();
-        };
+        } else {
+            const errorData = await response.json();
+            showToast(`Failed to save content: ${errorData.message}`, 'error');
+        }
+    } catch (error) {
+         showToast('Server connection error while saving content.', 'error');
+    }
+};
         const handleCancelLecture = (id) => {
             showToast('Cancel lecture logic (DB) pending!', 'info');
             // Simulate adding notification for now
